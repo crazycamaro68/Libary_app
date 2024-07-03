@@ -2,10 +2,6 @@
 const myLibrary = [];
 const content = document.querySelector(".content");
 
-
-
-let currentBook = 0;
-
 function Book(title, author, pages, hasRead){
     this.title = title;
     this.author = author;
@@ -29,38 +25,48 @@ Book.prototype.outputHasRead = function(){
     }
     return textOutput;
 }
-function createCard(){
+
+function render(){
+    const display = document.getElementById('Libary');
+    const books = document.querySelectorAll('.card');
+    books.forEach(book => display.removeChild(book));
+   
+    for (i=0; i<myLibrary.length; i++){
+        createCard(i);
+    }
+}
+function createCard(index){
     let Card = document.createElement("div");
     Card.setAttribute("class","card");
-    Card.setAttribute("id","data-index-"+currentBook);
+    Card.setAttribute("id","data-index-"+myLibrary[index].title);
     content.appendChild(Card);
 
     let deleteButton = document.createElement('button');
     deleteButton.setAttribute("id", "deleteButton");
-    deleteButton.setAttribute("onClick",`deleteBook(${currentBook})`);
+    deleteButton.setAttribute("onClick",`deleteBook("${myLibrary[index].title}")`);
     deleteButton.textContent = ("X");
     Card.appendChild(deleteButton);
 
     let Title = document.createElement("p");
     Title.setAttribute("id","title");
-    Title.textContent = (myLibrary[currentBook].title);
+    Title.textContent = (myLibrary[index].title);
     Card.appendChild(Title);
 
     let Author = document.createElement("p");
     Author.setAttribute("id","author");
-    Author.textContent = (myLibrary[currentBook].author);
+    Author.textContent = (myLibrary[index].author);
     Card.appendChild(Author);
 
     let Pages = document.createElement("p");
     Pages.setAttribute("id","pages");
-    Pages.textContent = (myLibrary[currentBook].pages);
+    Pages.textContent = (myLibrary[index].pages);
     Card.appendChild(Pages);
     
-    myLibrary[currentBook].outputHasRead();
+    myLibrary[index].outputHasRead();
 
     let isRead = document.createElement("button");
-    isRead.setAttribute("id",`read${currentBook}`);
-    isRead.setAttribute("onClick",`readStatus(${currentBook})`);
+    isRead.setAttribute("id",`read${index}`);
+    isRead.setAttribute("onClick",`readStatus(${index})`);
     isRead.textContent = (textOutput);
     Card.appendChild(isRead);
 }
@@ -68,16 +74,14 @@ function createCard(){
 const newBookButton = document.querySelector("#newBook");
 newBookButton.addEventListener("click", function(){addBookToLibrary()});
 
-function AddBookButton(event){
-    event.preventDefault();
+function AddBookButton(){
     let title = document.getElementById("titleBox").value;
     let author = document.getElementById("authorBox").value;
     let pages = document.getElementById("pagesBox").value;
     let hasRead = document.getElementById("hasReadBox").checked;
     let newBook = new Book(title,author,pages,hasRead);
     myLibrary.push(newBook);
-    createCard();
-    currentBook++;
+    render();
     container.remove();
     container = undefined;
 }
@@ -145,31 +149,31 @@ function addBookToLibrary(){
 
     let newBookButton = document.createElement('button');
     newBookButton.setAttribute('id','addBookButton');
-    newBookButton.setAttribute('type','submit');
+    newBookButton.setAttribute('type','button');
+    newBookButton.setAttribute("onclick",`AddBookButton()`);
     newBookButton.textContent = "Add Book";
     form.appendChild(newBookButton);
-
-    const addBookButton = document.querySelector("#addBookButton");
-    addBookButton.addEventListener("click", AddBookButton, false);
     }
 }
 
-function deleteBook(index){
-    let grabCard = document.querySelector("#data-index-"+index);
-    grabCard.remove();
+function deleteBook(input){
+    const getIndexNumber = myLibrary.findIndex(i => i.title === input);
+    myLibrary.splice(getIndexNumber, 1);
+    render();
 }
 
-function readStatus(index){
-    if(myLibrary[index].hasRead === true){
-        myLibrary[index].hasRead = false;
-        let buttonText = document.querySelector(`#read${index}`);
-        myLibrary[index].outputHasRead();
+function readStatus(input){
+    
+    if(myLibrary[input].hasRead === true){
+        myLibrary[input].hasRead = false;
+        let buttonText = document.querySelector(`#read${input}`);
+        myLibrary[input].outputHasRead();
         buttonText.textContent = (textOutput);
     }else{
-        myLibrary[index].hasRead = true;
-        let buttonText = document.querySelector(`#read${index}`);
-        myLibrary[index].outputHasRead();
+        myLibrary[input].hasRead = true;
+        let buttonText = document.querySelector(`#read${input}`);
+        myLibrary[input].outputHasRead();
         buttonText.textContent = (textOutput);
     }
 }
-myLibrary.forEach(element => {createCard(myLibrary[currentBook]); currentBook++;});
+render();
